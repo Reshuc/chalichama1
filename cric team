@@ -1,0 +1,215 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_PLAYERS 11
+#define MAX_NAME_LENGTH 50
+
+typedef struct {
+    char name[MAX_NAME_LENGTH];
+    int runs;
+    int balls;
+    int fours;
+    int sixes;
+    int out; // 0 for not out, 1 for out
+} Player;
+
+typedef struct {
+    char name[MAX_NAME_LENGTH];
+    int overs;
+    int maidens;
+    int runsConceded;
+    int wickets;
+} Bowler;
+
+typedef struct {
+    char name[MAX_NAME_LENGTH];
+    int catches;
+    int runOuts;
+    int stumpings;
+} Fielder;
+
+typedef struct {
+    char name[MAX_NAME_LENGTH];
+    Player players[MAX_PLAYERS];
+    Bowler bowlers[MAX_PLAYERS];
+    Fielder fielders[MAX_PLAYERS];
+    int extras;
+    int totalRuns;
+    int wickets;
+    float overs;
+} Team;
+
+typedef struct {
+    char team1[MAX_NAME_LENGTH];
+    char team2[MAX_NAME_LENGTH];
+    char venue[MAX_NAME_LENGTH];
+    char date[MAX_NAME_LENGTH];
+    char result[MAX_NAME_LENGTH];
+    Team innings1;
+    Team innings2;
+} Match;
+
+void inputPlayer(Player *player) {
+    printf("Enter player name: ");
+    scanf("%s", player->name);
+    printf("Enter runs: ");
+    scanf("%d", &player->runs);
+    printf("Enter balls faced: ");
+    scanf("%d", &player->balls);
+    printf("Enter number of fours: ");
+    scanf("%d", &player->fours);
+    printf("Enter number of sixes: ");
+    scanf("%d", &player->sixes);
+    printf("Is the player out? (1 for yes, 0 for no): ");
+    scanf("%d", &player->out);
+}
+
+void inputBowler(Bowler *bowler) {
+    printf("Enter bowler name: ");
+    scanf("%s", bowler->name);
+    printf("Enter overs bowled: ");
+    scanf("%d", &bowler->overs);
+    printf("Enter maidens bowled: ");
+    scanf("%d", &bowler->maidens);
+    printf("Enter runs conceded: ");
+    scanf("%d", &bowler->runsConceded);
+    printf("Enter wickets taken: ");
+    scanf("%d", &bowler->wickets);
+}
+
+void inputFielder(Fielder *fielder) {
+    printf("Enter fielder name: ");
+    scanf("%s", fielder->name);
+    printf("Enter catches taken: ");
+    scanf("%d", &fielder->catches);
+    printf("Enter run outs: ");
+    scanf("%d", &fielder->runOuts);
+    printf("Enter stumpings: ");
+    scanf("%d", &fielder->stumpings);
+}
+
+void inputTeam(Team *team) {
+    printf("Enter team name: ");
+    scanf("%s", team->name);
+    team->totalRuns = 0;
+    team->wickets = 0;
+    team->overs = 0;
+    
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        printf("\nEntering details for batsman %d\n", i + 1);
+        inputPlayer(&team->players[i]);
+        team->totalRuns += team->players[i].runs;
+        if (team->players[i].out) {
+            team->wickets++;
+        }
+    }
+    
+    printf("Enter extras: ");
+    scanf("%d", &team->extras);
+    team->totalRuns += team->extras;
+    
+    printf("Enter total overs played: ");
+    scanf("%f", &team->overs);
+    
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        printf("\nEntering details for bowler %d\n", i + 1);
+        inputBowler(&team->bowlers[i]);
+    }
+    
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        printf("\nEntering details for fielder %d\n", i + 1);
+        inputFielder(&team->fielders[i]);
+    }
+}
+
+void displayPlayer(const Player *player) {
+    printf("Name: %s\n", player->name);
+    printf("Runs: %d\n", player->runs);
+    printf("Balls: %d\n", player->balls);
+    printf("Fours: %d\n", player->fours);
+    printf("Sixes: %d\n", player->sixes);
+    printf("Out: %s\n", player->out ? "Yes" : "No");
+}
+
+void displayBowler(const Bowler *bowler) {
+    printf("Name: %s\n", bowler->name);
+    printf("Overs: %d\n", bowler->overs);
+    printf("Maidens: %d\n", bowler->maidens);
+    printf("Runs Conceded: %d\n", bowler->runsConceded);
+    printf("Wickets: %d\n", bowler->wickets);
+}
+
+void displayFielder(const Fielder *fielder) {
+    printf("Name: %s\n", fielder->name);
+    printf("Catches: %d\n", fielder->catches);
+    printf("Run Outs: %d\n", fielder->runOuts);
+    printf("Stumpings: %d\n", fielder->stumpings);
+}
+
+void displayTeam(const Team *team) {
+    printf("Team Name: %s\n", team->name);
+    printf("Total Runs: %d\n", team->totalRuns);
+    printf("Wickets: %d\n", team->wickets);
+    printf("Overs: %.2f\n", team->overs);
+    printf("Extras: %d\n", team->extras);
+    
+    printf("\nBatting Performance:\n");
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        printf("\nBatsman %d details:\n", i + 1);
+        displayPlayer(&team->players[i]);
+    }
+    
+    printf("\nBowling Performance:\n");
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        printf("\nBowler %d details:\n", i + 1);
+        displayBowler(&team->bowlers[i]);
+    }
+    
+    printf("\nFielding Performance:\n");
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        printf("\nFielder %d details:\n", i + 1);
+        displayFielder(&team->fielders[i]);
+    }
+}
+
+void inputMatch(Match *match) {
+    printf("Enter team 1 name: ");
+    scanf("%s", match->team1);
+    printf("Enter team 2 name: ");
+    scanf("%s", match->team2);
+    printf("Enter venue: ");
+    scanf("%s", match->venue);
+    printf("Enter date: ");
+    scanf("%s", match->date);
+    
+    printf("\nEntering details for innings 1\n");
+    inputTeam(&match->innings1);
+    
+    printf("\nEntering details for innings 2\n");
+    inputTeam(&match->innings2);
+    
+    printf("Enter match result: ");
+    scanf(" %[^\n]%*c", match->result); // to take string with spaces
+}
+
+void displayMatch(const Match *match) {
+    printf("Match between %s and %s\n", match->team1, match->team2);
+    printf("Venue: %s\n", match->venue);
+    printf("Date: %s\n", match->date);
+    printf("\nInnings 1 details:\n");
+    displayTeam(&match->innings1);
+    printf("\nInnings 2 details:\n");
+    displayTeam(&match->innings2);
+    printf("Result: %s\n", match->result);
+}
+
+int main() {
+    Match match;
+    inputMatch(&match);
+    displayMatch(&match);
+    return 0;
+}
+
+
+
+
